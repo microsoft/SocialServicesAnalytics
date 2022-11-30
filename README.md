@@ -54,6 +54,9 @@ The GitHub repo is divided into two distinct areas described below to facilitate
 
 ## Contributors
 Kirill Ignatkov - project manager
+
 Onno v/d Horst - technical implementation data and deployment
+
 Nabil Ben Meriem - technical implementation infrastructure and deployment
+
 Marco Scagliola - architecture and design
