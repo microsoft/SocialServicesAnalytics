@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "administratorLogin": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-swis-validation-rg/providers/Microsoft.KeyVault/vaults/kv-swis-contoso-weu-tst1"
+                },
+                "secretName": "administratorLogin"
+            }
+        },
+        "administratorLoginPassword": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-swis-validation-rg/providers/Microsoft.KeyVault/vaults/kv-swis-contoso-weu-tst1"
+                },
+                "secretName": "administratorLoginPassword"
+            }
+        },
+        "name": {
+            "value": "sql-swis-weu-tst01" //REPLACE WITH YOUR OWN VALUE
+        },
+        "databases": {
+            "value": [
+                {
+                    "name": "sqldb-swis-weu-tst01", //REPLACE WITH YOUR OWN VALUE
+                    "collation": "SQL_Latin1_General_CP1_CI_AS",
+                    "tier": "GeneralPurpose",
+                    "skuName": "GP_Gen5_2",
+                    "maxSizeBytes": 34359738368
+                }
+            ]
+        }
+    }
+}

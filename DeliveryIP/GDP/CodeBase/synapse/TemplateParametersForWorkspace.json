@@ -1,0 +1,303 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "synapse-gdp-contoso-uks-dev-001"
+		},
+		"CapitaOne_connectionString": {
+			"value": ""
+		},
+		"LiquidLogic_connectionString": {
+			"value": ""
+		},
+		"sqldb_gdp_contoso_uks_01_connectionString": {
+			"value": ""
+		},
+		"synapse-gdp-contoso-uks-dev-001-WorkspaceDefaultSqlServer_connectionString": {
+			"value": ""
+		},
+		"dls_gdp_contoso_enriched_properties_typeProperties_url": {
+			"value": "https://adisrefgdpcontosoweutst.dfs.core.windows.net/"
+		},
+		"dls_gdp_contoso_raw_properties_typeProperties_url": {
+			"value": "https://adisrawgdpcontosoweutst.dfs.core.windows.net/"
+		},
+		"kv_gdp_contoso_01_properties_typeProperties_baseUrl": {
+			"value": "https://kv-gdp-contoso-weu-tst01.vault.azure.net/"
+		},
+		"st_gdp_contoso_01_properties_typeProperties_serviceEndpoint": {
+			"value": "https://storawgdpcontosoweutst.blob.core.windows.net/"
+		},
+		"synapse-gdp-contoso-uks-dev-001-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://adisrefgdpcontosoweutst.dfs.core.windows.net"
+		},
+		"triggerAttendanceSummary_properties_pipeCapitaOneAttendanceSummary2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerAttendanceSummary_properties_pipeCapitaOneAttendanceSummary2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerAttendanceSummary_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerCitySchoolInformation2_properties_pipeSchoolsSchoolInformation2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerCitySchoolInformation2_properties_pipeSchoolsSchoolInformation2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerCitySchoolInformation2_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerCpCarePlan_properties_pipeLiquidLogicCpCarePlan2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerCpCarePlan_properties_pipeLiquidLogicCpCarePlan2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerCpCarePlan_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerEcafContact_properties_pipeLiquidLogicEcafContact2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerEcafContact_properties_pipeLiquidLogicEcafContact2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerEcafContact_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerEducationDetails_properties_pipeCapitaOneEducationDetails2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerEducationDetails_properties_pipeCapitaOneEducationDetails2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerEducationDetails_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerExclusions_properties_pipeCapitaOneExclusions2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerExclusions_properties_pipeCapitaOneExclusions2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerExclusions_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerIcsContact2_properties_pipeLiquidLogicIcsContact22Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerIcsContact2_properties_pipeLiquidLogicIcsContact22Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerIcsContact2_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerIcsCprchist_properties_pipeLiquidLogicIcscCprchist2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerIcsCprchist_properties_pipeLiquidLogicIcscCprchist2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerIcsCprchist_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerIcsLegalOrders_properties_pipeLiquidLogicIcsLegalOrders2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerIcsLegalOrders_properties_pipeLiquidLogicIcsLegalOrders2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerIcsLegalOrders_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerIcsPeriodCare_properties_pipeLiquidLogicIcsPeriodCare2Refined_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerIcsPeriodCare_properties_pipeLiquidLogicIcsPeriodCare2Refined_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerIcsPeriodCare_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerIcsPlacement_properties_pipeLiquidLogicIcsPlacement2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerIcsPlacement_properties_pipeLiquidLogicIcsPlacement2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerIcsPlacement_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerIcsRefer_properties_pipeLiquidLogicIcsRefer2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerIcsRefer_properties_pipeLiquidLogicIcsRefer2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerIcsRefer_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerIcscPreg_properties_pipeLiquidLogicIcscPreg2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerIcscPreg_properties_pipeLiquidLogicIcscPreg2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerIcscPreg_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerInternalReferenceData2_properties_pipeSchoolsInternalReferenceData2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerInternalReferenceData2_properties_pipeSchoolsInternalReferenceData2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerInternalReferenceData2_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerIsPerson_properties_pipeLiquidLogicIsPerson2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerIsPerson_properties_pipeLiquidLogicIsPerson2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerIsPerson_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerLookUpsFull_properties_pipeCapitaOneLookUpsFull2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerLookUpsFull_properties_pipeCapitaOneLookUpsFull2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerLookUpsFull_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerPeople_properties_pipeCapitaOnePeople2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerPeople_properties_pipeCapitaOnePeople2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerPeople_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerPeopleNameChange_properties_pipeCapitaOnePeopleNameChange2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerPeopleNameChange_properties_pipeCapitaOnePeopleNameChange2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerPeopleNameChange_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerPpMark_properties_pipeLiquidLogicPpMark2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerPpMark_properties_pipeLiquidLogicPpMark2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerPpMark_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerSchoolFiles_properties_pipeSchools2Raw_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerSchoolFiles_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/storawgdpcontosoweutst"
+		},
+		"triggerSchoolStatus_properties_pipeSchoolStatus2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerSchoolStatus_properties_pipeSchoolStatus2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerSchoolStatus_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerStudHist_properties_pipeCapitaOneStudHist2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerStudHist_properties_pipeCapitaOneStudHist2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerStudHist_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerStudentAttendance_properties_pipeCapitaOneStudentAttendance2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerStudentAttendance_properties_pipeCapitaOneStudentAttendance2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerStudentAttendance_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerTerms_properties_pipeTerms2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerTerms_properties_pipeTerms2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerTerms_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerWfAssessment_properties_pipeLiquidLogicWfAssessment_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerWfAssessment_properties_pipeLiquidLogicWfAssessment_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerWfAssessment_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerWfAssessmentArchive_properties_pipeLiquidLogicWfAssessmentArchive_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerWfAssessmentArchive_properties_pipeLiquidLogicWfAssessmentArchive_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerWfAssessmentArchive_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerWfAssessmentType_properties_pipeLiquidLogicWfAssessmentType2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerWfAssessmentType_properties_pipeLiquidLogicWfAssessmentType2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerWfAssessmentType_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerWfaanswer_properties_pipeLiquidLogicWfaanswer2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerWfaanswer_properties_pipeLiquidLogicWfaanswer2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerWfaanswer_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerWfasession_properties_pipeLiquidLogicWfasession2Enriched_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerWfasession_properties_pipeLiquidLogicWfasession2Enriched_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerWfasession_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		},
+		"triggerWfpicklistitem_properties_pipeLiquidLogicWfpicklistitem_parameters_folderPath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"triggerWfpicklistitem_properties_pipeLiquidLogicWfpicklistitem_parameters_fileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"triggerWfpicklistitem_properties_typeProperties_scope": {
+			"value": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.Storage/storageAccounts/adisrawgdpcontosoweutst"
+		}
+	}
+}

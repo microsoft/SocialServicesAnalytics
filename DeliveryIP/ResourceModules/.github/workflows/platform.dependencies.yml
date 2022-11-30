@@ -1,0 +1,654 @@
+name: '.Platform: Dependencies'
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploySqlMiDependencies:
+        type: boolean
+        description: 'Enable SqlMi dependencies deployment'
+        required: false
+        default: 'false'
+
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - '.github/actions/templates/validateModuleDeployment/**'
+  #     - '.github/workflows/platform.dependencies.yml'
+  #     - 'utilities/pipelines/dependencies/**'
+
+env:
+  defaultLocation: 'WestEurope'
+  defaultResourceGroupName: 'validation-rg'
+  resourceGroupNameArtifacts: 'artifacts-rg'
+  removeDeployment: 'false'
+  dependencyPath: 'utilities/pipelines/dependencies'
+  AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  ARM_SUBSCRIPTION_ID: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+  ARM_MGMTGROUP_ID: '${{ secrets.ARM_MGMTGROUP_ID }}'
+  ARM_TENANT_ID: '${{ secrets.ARM_TENANT_ID }}'
+  DEPLOYMENT_SP_ID: '${{ secrets.DEPLOYMENT_SP_ID }}'
+
+jobs:
+  job_deploy_rg:
+    runs-on: ubuntu-20.04
+    name: 'Deploy resource group'
+    env:
+      namespace: 'Microsoft.Resources\resourceGroups'
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['validation.parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_msi:
+    runs-on: ubuntu-20.04
+    name: 'Deploy user assigned identity'
+    env:
+      namespace: 'Microsoft.ManagedIdentity\userAssignedIdentities'
+    needs:
+      - job_deploy_rg
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_pa:
+    runs-on: ubuntu-20.04
+    name: 'Deploy policy assignment'
+    env:
+      namespace: 'Microsoft.Authorization\policyAssignments'
+    needs:
+      - job_deploy_rg
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/.bicep/nested_policyAssignments_sub.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_evh:
+    runs-on: ubuntu-20.04
+    name: 'Deploy eventhub'
+    env:
+      namespace: 'Microsoft.EventHub\namespaces'
+    needs:
+      - job_deploy_rg
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_law:
+    runs-on: ubuntu-20.04
+    name: 'Deploy log analytics workspace'
+    env:
+      namespace: 'Microsoft.OperationalInsights\workspaces'
+    needs:
+      - job_deploy_rg
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['appi.parameters.json', 'parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_sa:
+    runs-on: ubuntu-20.04
+    name: 'Deploy storage account'
+    env:
+      namespace: 'Microsoft.Storage\storageAccounts'
+    needs:
+      - job_deploy_rg
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths:
+          ['fa.parameters.json', 'law.parameters.json', 'parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_sa_upload_storage_files:
+    runs-on: ubuntu-20.04
+    name: 'Upload files to storage account'
+    env:
+      namespace: 'Microsoft.Storage\storageAccounts'
+    needs:
+      - job_deploy_sa
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Setup agent'
+        shell: pwsh
+        run: |
+          # Load used functions
+          . (Join-Path $env:GITHUB_WORKSPACE 'utilities' 'pipelines' 'sharedScripts' 'Set-EnvironmentOnAgent.ps1')
+
+          # Define PS modules to install on the runner
+          $Modules = @(
+              @{ Name = 'Az.Storage' }
+          )
+
+          # Set agent up
+          Set-EnvironmentOnAgent -PSModules $Modules
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+      - name: Run PowerShell
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            # Load used functions
+            . (Join-Path $env:GITHUB_WORKSPACE 'utilities' 'pipelines' 'sharedScripts' 'Export-ContentToBlob.ps1')
+
+            # Get storage account name
+            $parameterFilePath = Join-Path $env:GITHUB_WORKSPACE '${{ env.dependencyPath }}' '${{ env.namespace }}' 'parameters' 'parameters.json'
+            $storageAccountParameters = (ConvertFrom-Json (Get-Content -path $parameterFilePath -Raw)).parameters
+
+            # Upload files to storage account
+            $functionInput = @{
+              ResourceGroupName   = '${{ env.defaultResourceGroupName }}'
+              StorageAccountName  = $storageAccountParameters.name.value
+              contentDirectories  = Join-Path $env:GITHUB_WORKSPACE '${{ env.dependencyPath }}' '${{ env.namespace }}' 'uploads'
+              targetContainer     = $storageAccountParameters.blobServices.value.containers[0].name
+            }
+
+            Write-Verbose "Invoke task with" -Verbose
+            Write-Verbose ($functionInput | ConvertTo-Json | Out-String) -Verbose
+
+            Export-ContentToBlob @functionInput -Verbose
+          azPSVersion: 'latest'
+
+  job_deploy_sig:
+    runs-on: ubuntu-20.04
+    name: 'Deploy shared image gallery and definition'
+    env:
+      namespace: 'Microsoft.Compute\galleries'
+    needs:
+      - job_deploy_rg
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_ag:
+    runs-on: ubuntu-20.04
+    name: 'Deploy action groups'
+    env:
+      namespace: 'Microsoft.Insights\actionGroups'
+    needs:
+      - job_deploy_rg
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_asg:
+    runs-on: ubuntu-20.04
+    name: 'Deploy application security groups'
+    env:
+      namespace: 'Microsoft.Network\applicationSecurityGroups'
+    needs:
+      - job_deploy_rg
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_udr:
+    runs-on: ubuntu-20.04
+    name: 'Deploy route tables'
+    env:
+      namespace: 'Microsoft.Network\routeTables'
+    needs:
+      - job_deploy_rg
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_sqlmi_udr:
+    runs-on: ubuntu-20.04
+    name: 'Deploy sqlmi route tables'
+    if: github.event.inputs.deploySqlMiDependencies == 'true'
+    env:
+      namespace: 'Microsoft.Network\routeTables'
+    needs:
+      - job_deploy_rg
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['sqlMi.parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_kv:
+    runs-on: ubuntu-20.04
+    name: 'Deploy key vaults'
+    env:
+      namespace: 'Microsoft.KeyVault\vaults'
+    needs:
+      - job_deploy_sa
+      - job_deploy_evh
+      - job_deploy_law
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['parameters.json', 'pe.parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_kv_secrets:
+    runs-on: ubuntu-20.04
+    name: 'Set key vault secrets keys and certificates'
+    env:
+      namespace: 'Microsoft.KeyVault\vaults'
+    needs:
+      - job_deploy_kv
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Setup agent'
+        shell: pwsh
+        run: |
+          # Load used functions
+          . (Join-Path $env:GITHUB_WORKSPACE 'utilities' 'pipelines' 'sharedScripts' 'Set-EnvironmentOnAgent.ps1')
+
+          # Define PS modules to install on the runner
+          $Modules = @(
+              @{ Name = 'Az.KeyVault' }
+          )
+
+          # Set agent up
+          Set-EnvironmentOnAgent -PSModules $Modules
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+      - name: 'Set key vault secrets keys and certificates'
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            # Get key vault name
+            $parameterFilePath = Join-Path $env:GITHUB_WORKSPACE 'utilities' 'pipelines' 'dependencies' '${{ env.namespace }}' 'parameters' 'parameters.json'
+            $keyVaultParameters = (ConvertFrom-Json (Get-Content -Path $parameterFilePath -Raw)).parameters
+            $keyVaultName = $keyVaultParameters.name.value
+
+            # Generate values
+            $usernameString = ( -join ((65..90) + (97..122) | Get-Random -Count 9 -SetSeed 1 | ForEach-Object { [char]$_ + "$_" })).substring(0, 19) # max length
+            $userName = ConvertTo-SecureString -String $usernameString -AsPlainText -Force
+            $passwordString = (New-Guid).Guid.SubString(0, 19)
+            $password = ConvertTo-SecureString -String $passwordString -AsPlainText -Force
+            $vpnSharedKeyString = (New-Guid).Guid.SubString(0, 32)
+            $vpnSharedKey = ConvertTo-SecureString -String $vpnSharedKeyString -AsPlainText -Force
+
+            # Set secrets
+            # -------
+            @(
+              @{ name = 'adminUsername'; secretValue = $username } # VirtualMachines and VMSS
+              @{ name = 'adminPassword'; secretValue = $password } # VirtualMachines and VMSS
+              @{ name = 'administratorLogin'; secretValue = $username } # Azure SQLServer
+              @{ name = 'administratorLoginPassword'; secretValue = $password } # Azure SQLServer
+              @{ name = 'vpnSharedKey'; secretValue = $vpnSharedKey } # VirtualNetworkGateway
+              @{ name = 'apimClientId'; secretValue = $username } # API management
+              @{ name = 'apimClientSecret'; secretValue = $password } # API management
+            ) | ForEach-Object {
+              $null = Set-AzKeyVaultSecret -VaultName $keyVaultName -Name $_.name -SecretValue $_.secretValue
+              Write-Verbose ('Added secret [{0}] to key vault [{1}]' -f $_.name, $keyVaultName) -Verbose
+            }
+
+            # Set certificates
+            # -----------
+            $certPolicy = New-AzKeyVaultCertificatePolicy -SecretContentType 'application/x-pkcs12' -SubjectName 'CN=fabrikam.com' -IssuerName 'Self' -ValidityInMonths 12 -ReuseKeyOnRenewal
+            @(
+              @{ name = 'applicationGatewaySslCertificate'; CertificatePolicy = $certPolicy } # ApplicationGateway
+            ) | ForEach-Object {
+              $null = Add-AzKeyVaultCertificate -VaultName $keyVaultName -Name $_.name -CertificatePolicy $_.CertificatePolicy
+              Write-Verbose ('Added certificate [{0}] to key vault [{1}]' -f $_.name, $keyVaultName) -Verbose
+            }
+
+            # Set keys
+            # ----
+            @(
+              @{ name = 'keyEncryptionKey'; Destination = 'Software' } # DiskEncryptionSet, VirtualMachines and VMSS
+            ) | ForEach-Object {
+                $null = Add-AzKeyVaultKey -VaultName $keyVaultName -Name $_.name -Destination $_.Destination
+                Write-Verbose ('Added key [{0}] to key vault [{1}]' -f $_.name, $keyVaultName) -Verbose
+            }
+          azPSVersion: 'latest'
+
+  job_deploy_sqlmi_kv:
+    runs-on: ubuntu-20.04
+    name: 'Deploy sqlmi key vault'
+    if: github.event.inputs.deploySqlMiDependencies == 'true'
+    env:
+      namespace: 'Microsoft.KeyVault\vaults'
+    needs:
+      - job_deploy_sa
+      - job_deploy_evh
+      - job_deploy_law
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['sqlmi.parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_sqlmi_kv_secrets:
+    runs-on: ubuntu-20.04
+    name: 'Set sqlmi key vault secrets and keys'
+    if: github.event.inputs.deploySqlMiDependencies == 'true'
+    needs:
+      - job_deploy_sqlmi_kv
+    env:
+      namespace: 'Microsoft.KeyVault\vaults'
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Setup agent'
+        shell: pwsh
+        run: |
+          # Load used functions
+          . (Join-Path $env:GITHUB_WORKSPACE 'utilities' 'pipelines' 'sharedScripts' 'Set-EnvironmentOnAgent.ps1')
+
+          # Define PS modules to install on the runner
+          $Modules = @(
+              @{ Name = 'Az.KeyVault' }
+          )
+
+          # Set agent up
+          Set-EnvironmentOnAgent -PSModules $Modules
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+      - name: 'Set sqlmi key vault secrets and keys'
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            # Get key vault name
+            $parameterFilePath = Join-Path $env:GITHUB_WORKSPACE 'utilities' 'pipelines' 'dependencies' '${{ env.namespace }}' 'parameters' 'sqlmi.parameters.json'
+            $keyVaultParameters = (ConvertFrom-Json (Get-Content -Path $parameterFilePath -Raw)).parameters
+            $keyVaultName = $keyVaultParameters.name.value
+
+            # Generate values
+            $usernameString = ( -join ((65..90) + (97..122) | Get-Random -Count 9 -SetSeed 1 | ForEach-Object { [char]$_ + "$_" })).substring(0, 19) # max length
+            $userName = ConvertTo-SecureString -String $usernameString -AsPlainText -Force
+            $passwordString = (New-Guid).Guid.SubString(0, 19)
+            $password = ConvertTo-SecureString -String $passwordString -AsPlainText -Force
+
+            # Set secrets
+            # -------
+            @(
+              @{ name = 'administratorLogin'; secretValue = $username } # SQLManagedInstances
+              @{ name = 'administratorLoginPassword'; secretValue = $password } # SQLManagedInstances
+            ) | ForEach-Object {
+              $null = Set-AzKeyVaultSecret -VaultName $keyVaultName -Name $_.name -SecretValue $_.secretValue
+              Write-Verbose ('Added secret [{0}] to key vault [{1}]' -f $_.name, $keyVaultName) -Verbose
+            }
+
+            # Set keys
+            # ----
+            @(
+              @{ name = 'keyEncryptionKeySqlMi'; Destination = 'Software' } # SQLManagedInstances
+            ) | ForEach-Object {
+                $null = Add-AzKeyVaultKey -VaultName $keyVaultName -Name $_.name -Destination $_.Destination
+                Write-Verbose ('Added key [{0}] to key vault [{1}]' -f $_.name, $keyVaultName) -Verbose
+            }
+          azPSVersion: 'latest'
+
+  job_deploy_vnet:
+    runs-on: ubuntu-20.04
+    name: 'Deploy virtual networks'
+    env:
+      namespace: 'Microsoft.Network\virtualNetworks'
+    needs:
+      - job_deploy_nsg
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths:
+          [
+            '1.bastion.parameters.json',
+            '2.vnetpeer01.parameters.json',
+            '3.vnetpeer02.parameters.json',
+            '4.azfw.parameters.json',
+            '5.aks.parameters.json',
+            'parameters.json',
+          ]
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'
+
+  job_deploy_vm:
+    runs-on: ubuntu-20.04
+    name: 'Deploy virtual machines'
+    env:
+      namespace: 'Microsoft.Compute\virtualMachines'
+    needs:
+      - job_deploy_kv_secrets
+      - job_deploy_vnet
+      - job_deploy_rsv
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ['parameters.json']
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Deploy module'
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'arm/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: '${{ env.dependencyPath }}/${{ env.namespace }}/parameters/${{ matrix.parameterFilePaths }}'
+          location: '${{ env.defaultLocation }}'
+          resourceGroupName: '${{ env.defaultResourceGroupName }}'
+          subscriptionId: '${{ secrets.ARM_SUBSCRIPTION_ID }}'
+          managementGroupId: '${{ secrets.ARM_MGMTGROUP_ID }}'
+          removeDeployment: '${{ env.removeDeployment }}'

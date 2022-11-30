@@ -1,0 +1,316 @@
+name: ".Platform: SWIS"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/nabil_code_enhancement
+
+env:
+  defaultLocation: "westeurope"
+  defaultResourceGroupName: "weu-tst-swis-validation-rg"
+  gdpDefaultResourceGroupName: "weu-tst-gdp-validation-rg"
+  removeDeployment: "false"
+  dependencyPath: "DeliveryIP/SWIS/Pipelines/Parameters"
+  AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  ARM_SUBSCRIPTION_ID: "${{ secrets.ARM_SUBSCRIPTION_ID }}"
+  ARM_MGMTGROUP_ID: "${{ secrets.ARM_MGMTGROUP_ID }}"
+  ARM_TENANT_ID: "${{ secrets.ARM_TENANT_ID }}"
+  DEPLOYMENT_SP_ID: "${{ secrets.DEPLOYMENT_SP_ID }}"
+  SSIP_OPERATOR: "f0bc53a8-808f-4831-9b43-659392e27ad1"
+
+jobs:
+  job_deploy_kv:
+    runs-on: ubuntu-20.04
+    name: "Deploy key vaults"
+    env:
+      namespace: 'Microsoft.KeyVault\vaults'
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ["kv.parameters.json"]
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: "Deploy module"
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'DeliveryIP\ResourceModules\modules/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: "${{ env.dependencyPath }}/${{ matrix.parameterFilePaths }}"
+          location: "${{ env.defaultLocation }}"
+          resourceGroupName: "${{ env.defaultResourceGroupName }}"
+          subscriptionId: "${{ secrets.ARM_SUBSCRIPTION_ID }}"
+          managementGroupId: "${{ secrets.ARM_MGMTGROUP_ID }}"
+          removeDeployment: "${{ env.removeDeployment }}"
+
+  job_deploy_kv_secrets:
+    runs-on: ubuntu-20.04
+    name: "Set key vault secrets"
+    env:
+      namespace: 'Microsoft.KeyVault\vaults'
+    needs:
+      - job_deploy_kv
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: "Setup agent"
+        shell: pwsh
+        run: |
+          # Load used functions
+          . (Join-Path $env:GITHUB_WORKSPACE 'DeliveryIP' 'ResourceModules' 'utilities' 'pipelines' 'sharedScripts' 'Set-EnvironmentOnAgent.ps1')
+
+          # Define PS modules to install on the runner
+          $Modules = @(
+              @{ Name = 'Az.KeyVault' }
+          )
+
+          # Set agent up
+          Set-EnvironmentOnAgent -PSModules $Modules
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+      - name: "Set key vault secrets keys and certificates"
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            # Get key vault name
+            $parameterFilePath = Join-Path $env:GITHUB_WORKSPACE 'DeliveryIP' 'ResourceModules' 'utilities' 'pipelines' 'SWIS' 'kv.parameters.json'
+            $keyVaultParameters = (ConvertFrom-Json (Get-Content -Path $parameterFilePath -Raw)).parameters
+            $keyVaultName = $keyVaultParameters.name.value
+
+            # Generate values
+            $usernameString = ( -join ((65..90) + (97..122) | Get-Random -Count 9 -SetSeed 1 | ForEach-Object { [char]$_ + "$_" })).substring(0, 19) # max length
+            $userName = ConvertTo-SecureString -String $usernameString -AsPlainText -Force
+            $passwordString = (New-Guid).Guid.SubString(0, 19)
+            $password = ConvertTo-SecureString -String $passwordString -AsPlainText -Force
+            $vpnSharedKeyString = (New-Guid).Guid.SubString(0, 32)
+            $vpnSharedKey = ConvertTo-SecureString -String $vpnSharedKeyString -AsPlainText -Force
+
+            # Set secrets
+            # -------
+            @(
+              @{ name = 'administratorLogin'; secretValue = $username } # Azure SQLServer
+              @{ name = 'administratorLoginPassword'; secretValue = $password } # Azure SQLServer
+            ) | ForEach-Object {
+              $null = Set-AzKeyVaultSecret -VaultName $keyVaultName -Name $_.name -SecretValue $_.secretValue
+              Write-Verbose ('Added secret [{0}] to key vault [{1}]' -f $_.name, $keyVaultName) -Verbose
+            }
+
+            # Set certificates
+            # -----------
+            $certPolicy = New-AzKeyVaultCertificatePolicy -SecretContentType 'application/x-pkcs12' -SubjectName 'CN=fabrikam.com' -IssuerName 'Self' -ValidityInMonths 12 -ReuseKeyOnRenewal
+            @(
+              @{ name = 'applicationGatewaySslCertificate'; CertificatePolicy = $certPolicy } # ApplicationGateway
+            ) | ForEach-Object {
+              $null = Add-AzKeyVaultCertificate -VaultName $keyVaultName -Name $_.name -CertificatePolicy $_.CertificatePolicy
+              Write-Verbose ('Added certificate [{0}] to key vault [{1}]' -f $_.name, $keyVaultName) -Verbose
+            }
+
+            # Set keys
+            # ----
+            @(
+              @{ name = 'keyEncryptionKey'; Destination = 'Software' } # DiskEncryptionSet, VirtualMachines and VMSS
+            ) | ForEach-Object {
+                $null = Add-AzKeyVaultKey -VaultName $keyVaultName -Name $_.name -Destination $_.Destination
+                Write-Verbose ('Added key [{0}] to key vault [{1}]' -f $_.name, $keyVaultName) -Verbose
+            }
+          azPSVersion: "latest"
+
+  job_deploy_sql:
+    runs-on: ubuntu-20.04
+    name: "Deploy SQL Server"
+    env:
+      namespace: 'Microsoft.Sql\servers'
+    needs:
+      - job_deploy_kv_secrets
+
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ["sql.parameters.json"]
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: "Deploy module"
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'DeliveryIP\ResourceModules\modules/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: "${{ env.dependencyPath }}/${{ matrix.parameterFilePaths }}"
+          location: "${{ env.defaultLocation }}"
+          resourceGroupName: "${{ env.defaultResourceGroupName }}"
+          subscriptionId: "${{ secrets.ARM_SUBSCRIPTION_ID }}"
+          managementGroupId: "${{ secrets.ARM_MGMTGROUP_ID }}"
+          removeDeployment: "${{ env.removeDeployment }}"
+
+  job_deploy_synapse:
+    runs-on: ubuntu-20.04
+    name: "Deploy Synapse Workspace"
+    env:
+      namespace: "Microsoft.Synapse/workspace"
+    needs:
+      - job_deploy_kv_secrets
+    strategy:
+      fail-fast: false
+      matrix:
+        parameterFilePaths: ["synapse-wks.parameters.json"]
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: "Deploy module"
+        uses: ./.github/actions/templates/validateModuleDeployment
+        with:
+          templateFilePath: 'DeliveryIP\ResourceModules\modules/${{ env.namespace }}/deploy.bicep'
+          parameterFilePath: "${{ env.dependencyPath }}/${{ matrix.parameterFilePaths }}"
+          location: "${{ env.defaultLocation }}"
+          resourceGroupName: "${{ env.defaultResourceGroupName }}"
+          subscriptionId: "${{ secrets.ARM_SUBSCRIPTION_ID }}"
+          managementGroupId: "${{ secrets.ARM_MGMTGROUP_ID }}"
+          removeDeployment: "${{ env.removeDeployment }}"
+
+  job_deploy_sql_code:
+    runs-on: ubuntu-20.04
+    name: 'Deploy SQL code base'
+    environment: 'swis-code'
+    env:
+      namespace: 'Microsoft.Sql'
+    needs:
+      - job_deploy_sql
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+      - name: "Get SQL DB details"
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            # Get key vault name
+            $parameterFilePath = Join-Path $env:GITHUB_WORKSPACE 'DeliveryIP' 'ResourceModules' 'utilities' 'pipelines' 'SWIS' 'sql.parameters.json'
+            $sqlParameters = (ConvertFrom-Json (Get-Content -Path $parameterFilePath -Raw)).parameters
+            $sqlName = $sqlParameters.name.value
+            $sqlDbName = $sqlParameters.databases.value.name
+            echo "SQL_SERVER_NAME=${sqlName}" >> $Env:GITHUB_ENV
+            echo "SQL_DB_NAME=${sqlDbName}" >> $Env:GITHUB_ENV
+
+
+            # Get key vault name
+            $parameterFilePath = Join-Path $env:GITHUB_WORKSPACE 'DeliveryIP' 'ResourceModules' 'utilities' 'pipelines' 'SWIS' 'kv.parameters.json'
+            $keyVaultParameters = (ConvertFrom-Json (Get-Content -Path $parameterFilePath -Raw)).parameters
+            $keyVaultName = $keyVaultParameters.name.value
+            echo "KEY_VAULT_NAME=${keyVaultName}" >> $Env:GITHUB_ENV
+          azPSVersion: "latest"
+
+      - uses: Azure/get-keyvault-secrets@v1
+        with:
+          keyvault: "${{ env.KEY_VAULT_NAME }}" # name of key vault in Azure portal
+          secrets: 'administratorLogin, administratorLoginPassword'  # comma separated list of secret keys to fetch from key vault 
+        id: myGetSecretAction # ID for secrets that you will reference
+      - name: Azure SQL Deploy
+        uses: Azure/sql-action@v1.2
+        with:
+          server-name: '${{ env.SQL_SERVER_NAME }}.database.windows.net' # To be filled in GitHub Secrets
+          connection-string: 'Server=tcp:${{ env.SQL_SERVER_NAME }}.database.windows.net,1433;Initial Catalog=${{ env.SQL_DB_NAME }};Persist Security Info=False;User ID=${{ steps.myGetSecretAction.outputs.administratorLogin }};Password=${{ steps.myGetSecretAction.outputs.administratorLoginPassword }};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+          dacpac-package: 'DeliveryIP/SWIS/CodeBase/sql/sqldb-swis-weu-tst01.dacpac'
+
+  job_deploy_synapse_code:
+    runs-on: ubuntu-20.04
+    name: 'Deploy Synapse code base'
+    environment: 'swis-code'
+    env:
+      namespace: 'Microsoft.Sql'
+    needs:
+      - job_deploy_synapse
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+      - name: "Get SQL DB details"
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            # Get key vault name
+            $parameterFilePath = Join-Path $env:GITHUB_WORKSPACE 'DeliveryIP\SWIS\Pipelines\Parameters\synapse-wks.parameters.json'
+            $synapseParameters = (ConvertFrom-Json (Get-Content -Path $parameterFilePath -Raw)).parameters
+            $synapseName = $synapseParameters.name.value
+            echo "SYNAPSE_NAME=${synapseName}" >> $Env:GITHUB_ENV
+
+            # Get key vault name
+            $parameterFilePath = Join-Path $env:GITHUB_WORKSPACE 'DeliveryIP' 'SWIS' 'Pipelines' 'Parameters' 'sql.parameters.json'
+            $sqlParameters = (ConvertFrom-Json (Get-Content -Path $parameterFilePath -Raw)).parameters
+            $sqlName = $sqlParameters.name.value
+            $sqlDbName = $sqlParameters.databases.value.name
+            echo "SQL_SERVER_NAME=${sqlName}" >> $Env:GITHUB_ENV
+            echo "SQL_DB_NAME=${sqlDbName}" >> $Env:GITHUB_ENV
+
+
+            # Get key vault name
+            $parameterFilePath = Join-Path $env:GITHUB_WORKSPACE 'DeliveryIP' 'SWIS' 'Pipelines' 'Parameters' 'kv.parameters.json'
+            $keyVaultParameters = (ConvertFrom-Json (Get-Content -Path $parameterFilePath -Raw)).parameters
+            $keyVaultName = $keyVaultParameters.name.value
+            echo "KEY_VAULT_NAME=${keyVaultName}" >> $Env:GITHUB_ENV
+
+            # New-AzRoleAssignment -RoleDefinitionName 'Key Vault Administrator' -ObjectId '7ef20d83-bcdd-4dd6-8a5b-7f45ccb8ffca' -Scope '/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourcegroups/weu-tst-swis-validation-rg/providers/Microsoft.KeyVault/vaults/kv-swis-contoso-weu-tst01'
+          azPSVersion: "latest"
+
+      - uses: Azure/get-keyvault-secrets@v1
+        with:
+          keyvault: "${{ env.KEY_VAULT_NAME }}" # name of key vault in Azure portal
+          secrets: 'administratorLogin, administratorLoginPassword'  # comma separated list of secret keys to fetch from key vault
+        id: myGetSecretAction # ID for secrets that you will reference
+
+
+      - name: Synapse workspace deployment
+        uses: Azure/Synapse-workspace-deployment@release-1.0
+        with:
+          TargetWorkspaceName: '${{ env.SYNAPSE_NAME }}'
+          TemplateFile: DeliveryIP/SWIS/CodeBase/synapse/SQLSink/TemplateForWorkspace.json
+          ParametersFile: DeliveryIP/SWIS/CodeBase/synapse/SQLSink/TemplateParametersForWorkspace.json
+          # OverrideArmParameters: '-sqldb_gdp_contoso_uks_01_connectionString '
+          environment: Azure Public
+          resourceGroup: ${{ env.defaultResourceGroupName }}
+          subscriptionId: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          clientId: 74683ac8-daf6-45f9-b295-13c4ecc3745a
+          clientSecret: ${{ secrets.CLIENT_SECRET2 }}
+          tenantId: ${{ secrets.ARM_TENANT_ID }}
+
+      - name: "Set Workspace Access to person"
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            # Get synapse and key vault name
+            $parameterFilePath = Join-Path $env:GITHUB_WORKSPACE 'DeliveryIP' 'SWIS' 'Pipelines' 'Parameters' 'synapse-wks.parameters.json'
+            $synapseParameters = (ConvertFrom-Json (Get-Content -Path $parameterFilePath -Raw)).parameters
+            $synapseName = $synapseParameters.name.value
+
+            # Give admin access to Key Vault
+            $parameterFilePath = Join-Path $env:GITHUB_WORKSPACE 'DeliveryIP' 'SWIS' 'Pipelines' 'Parameters' 'kv.parameters.json'
+            $keyVaultParameters = (ConvertFrom-Json (Get-Content -Path $parameterFilePath -Raw)).parameters
+            $keyVaultName = $keyVaultParameters.name.value
+
+            # Give admin access to Synapse
+            New-AzSynapseRoleAssignment -WorkspaceName $synapseName -RoleDefinitionName 'Synapse Administrator' -ObjectId $Env:SSIP_OPERATOR -ErrorAction SilentlyContinue
+
+
+          azPSVersion: "latest"
+

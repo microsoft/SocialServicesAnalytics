@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "synapse-swis-socialservices-we-dev-001"
+		},
+		"sqldb_swis_contoso_uks_01_connectionString": {
+			"value": ""
+		},
+		"synapse-swis-socialservices-we-dev-001-WorkspaceDefaultSqlServer_connectionString": {
+			"value": ""
+		},
+		"synapsedwh_swis_contoso_uks_001_connectionString": {
+			"value": ""
+		},
+		"dls_gdp_contoso_enriched_properties_typeProperties_url": {
+			"value": "https://adlsrefgdpcontoso.dfs.core.windows.net"
+		},
+		"kv_swis_contoso_01_properties_typeProperties_baseUrl": {
+			"value": "https://akv-swis-we-dev-001.vault.azure.net/"
+		},
+		"synapse-swis-socialservices-we-dev-001-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://adlsrawsocialservices.dfs.core.windows.net"
+		}
+	}
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "value": "kv-swis-contoso-weu-tst1" //REPLACE WITH YOUR OWN VALUE
+    },
+    "accessPolicies": {
+      "value": [
+        {
+          "tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47", //REPLACE WITH YOUR OWN VALUE
+          "objectId": "3234c793-49b6-4493-b526-21e7c3036ecf", //REPLACE WITH YOUR OWN VALUE
+          "permissions": {
+            "keys": [
+              "all"
+            ],
+            "secrets": [
+              "all"
+            ],
+            "certificates": [
+              "all"
+            ]
+          }
+        }
+      ]
+    },
+    "networkAcls": {
+      "value": {
+          "bypass": "AzureServices",
+          "defaultAction": "Allow",
+          "virtualNetworkRules": [],
+          "ipRules": []
+      }
+    }
+  }
+}

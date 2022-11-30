@@ -1,0 +1,44 @@
+{
+    "variables": [
+        {
+            "name": "defaultLocation",
+            "value": "uksouth"
+        },
+        {
+            "name": "resourceGroupName",
+            "value": "ssip-validation-rg"
+        },
+        {
+            "name": "templateSpecsRGName",
+            "value": "ssip-artifacts-rg"
+        },
+        {
+            "name": "templateSpecsRGLocation",
+            "value": "uksouth"
+        },
+        {
+            "name": "templateSpecsDescription",
+            "value": "This is a module from the [Common Azure Resource Modules Library]"
+        },
+        {
+            "name": "templateSpecsDoPublish",
+            "value": "true"
+        },
+        {
+            "name": "bicepRegistryName",
+            "value": "adpssipazacrx001"
+        },
+        {
+            "name": "bicepRegistryRGName",
+            "value": "ssip-artifacts-rg"
+        },
+        {
+            "name": "bicepRegistryRgLocation",
+            "value": "uksouth"
+        },
+        {
+            "name": "bicepRegistryDoPublish",
+            "value": "true"
+        }
+    ]
+}

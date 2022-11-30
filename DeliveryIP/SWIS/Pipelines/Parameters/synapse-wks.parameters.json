@@ -1,0 +1,31 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "value": "synapse-swis-contoso-uks-dev-002" //REPLACE WITH YOUR OWN VALUE
+    },
+    "defaultDataLakeStorageAccountName": {  //REPLACE WITH YOUR OWN VALUE
+      "value": "adisrefgdpcontosoweutst"
+    },
+    "defaultDataLakeStorageFilesystem": { //REPLACE WITH YOUR OWN VALUE
+      "value": "synapsews"
+    },
+    "administratorLogin": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.KeyVault/vaults/kv-gdp-contoso-weu-tst01"
+        },
+        "secretName": "administratorLogin"
+      }
+    },
+    "administratorLoginPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.KeyVault/vaults/kv-gdp-contoso-weu-tst01"
+        },
+        "secretName": "administratorLoginPassword"
+      }
+    }
+  }
+}
