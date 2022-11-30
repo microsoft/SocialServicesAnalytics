@@ -51,3 +51,9 @@ The GitHub repo is divided into two distinct areas described below to facilitate
 |Delivery Guidance|This section contains instructions on how to successfully personalise and deploy the Social Services IP work products on Azure Cloud environments.|[link](https://github.com/microsoft/SocialServicesIP/tree/main/DeliveryGuidance)|
 |Delivery IP|This section contains the IP work products and their documentation expressed as Markdown markup language. For the intent of the IP, the documentation is generic and will need personalization to the specific customer and their technical and business characteristics.|[link](https://github.com/microsoft/SocialServicesIP/tree/main/DeliveryIP)| 
 |Miscellaneous|This section is dedicated to the IP delivery team content.|[link](https://github.com/microsoft/SocialServicesIP/tree/main/Miscellaneous)| 
+
+## Contributors
+Kirill Ignatkov - project manager
+Onno v/d Horst - technical implementation data and deployment
+Nabil Ben Meriem - technical implementation infrastructure and deployment
+Marco Scagliola - architecture and design
