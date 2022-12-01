@@ -16,7 +16,7 @@ env:
   ARM_MGMTGROUP_ID: "${{ secrets.ARM_MGMTGROUP_ID }}"
   ARM_TENANT_ID: "${{ secrets.ARM_TENANT_ID }}"
   DEPLOYMENT_SP_ID: "${{ secrets.DEPLOYMENT_SP_ID }}"
-  SSIP_OPERATOR: "f0bc53a8-808f-4831-9b43-659392e27ad1" # Own object ID
+  SSIP_OPERATOR: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" # Own object ID
 
 
 jobs:
