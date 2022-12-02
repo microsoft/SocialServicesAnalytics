@@ -14,7 +14,7 @@
     "administratorLogin": {
       "reference": {
         "keyVault": {
-          "id": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.KeyVault/vaults/kv-gdp-contoso-weu-tst01"
+          "id": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.KeyVault/vaults/kv-gdp-contoso-weu-tst01"
         },
         "secretName": "administratorLogin"
       }
@@ -22,7 +22,7 @@
     "administratorLoginPassword": {
       "reference": {
         "keyVault": {
-          "id": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.KeyVault/vaults/kv-gdp-contoso-weu-tst01"
+          "id": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/weu-tst-gdp-validation-rg/providers/Microsoft.KeyVault/vaults/kv-gdp-contoso-weu-tst01"
         },
         "secretName": "administratorLoginPassword"
       }

@@ -5,7 +5,7 @@
         "administratorLogin": {
             "reference": {
                 "keyVault": {
-                    "id": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-swis-validation-rg/providers/Microsoft.KeyVault/vaults/kv-swis-contoso-weu-tst1"
+                    "id": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/weu-tst-swis-validation-rg/providers/Microsoft.KeyVault/vaults/kv-swis-contoso-weu-tst1"
                 },
                 "secretName": "administratorLogin"
             }
@@ -13,7 +13,7 @@
         "administratorLoginPassword": {
             "reference": {
                 "keyVault": {
-                    "id": "/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourceGroups/weu-tst-swis-validation-rg/providers/Microsoft.KeyVault/vaults/kv-swis-contoso-weu-tst1"
+                    "id": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/weu-tst-swis-validation-rg/providers/Microsoft.KeyVault/vaults/kv-swis-contoso-weu-tst1"
                 },
                 "secretName": "administratorLoginPassword"
             }

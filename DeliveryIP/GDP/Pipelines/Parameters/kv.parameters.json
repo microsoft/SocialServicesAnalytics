@@ -8,8 +8,8 @@
     "accessPolicies": {
       "value": [
         {
-          "tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47", //REPLACE WITH YOUR OWN VALUE
-          "objectId": "3234c793-49b6-4493-b526-21e7c3036ecf", //REPLACE WITH YOUR OWN VALUE
+          "tenantId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", //REPLACE WITH YOUR OWN VALUE 
+          "objectId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", //REPLACE WITH YOUR OWN VALUE
           "permissions": {
             "keys": [
               "all"
