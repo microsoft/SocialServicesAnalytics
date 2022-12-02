@@ -6,7 +6,7 @@ This deployment guide is to be used for the steps to take in order to deploy the
 - VS Code with the Azure Resource Manager and Bicep Tools extension installed.
 - Azure CLI installed. (https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 - Git installed. (https://git-scm.com/downloads) and git knowledge.
-- You need to clone the repository.
+- You need to fork the repository to your GitHub organization or personal account. (https://docs.github.com/en/get-started/quickstart/fork-a-repo) and then clone it to your local machine.
 - Enable GitHub Actions for the repository. (https://docs.github.com/en/actions/learn-github-actions/enabling-and-disabling-github-actions) and Github and Azure credentials configured. (https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure-devops?tabs=personal-access-token).
 
 ## Deployments steps
