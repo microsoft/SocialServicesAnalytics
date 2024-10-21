@@ -5,7 +5,7 @@ As shown in the pictorial below, the Social Service IP solution comprises two (2
 - Global Data Platform (GDP)
 - Social Service Analytics Platform (SSAP)
 
-<img src="https://github.com/microsoft/SocialServicesIP/blob/main/img/Social%20Services%20High%20Level%20Architecture1.jpg" width="60%" height="60%">
+<img src="img/Social Services High Level Architecture1.jpg" width="60%" height="60%">
 
 The _*Global Data Platform (GDP)*_ solution responds to the need for a centralized data store, including a standard set of services, tools, and governance, all analysis and analytics use cases within Constoso. With this pattern, the data needed for data initiatives is extracted only once from the source system and then disseminated multiple times to consumers. 
 
