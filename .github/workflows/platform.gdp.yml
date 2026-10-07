@@ -32,7 +32,7 @@ jobs:
           ["storage1.parameters.json", "storage2.parameters.json", "storage3.parameters.json"]
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
         with:
           fetch-depth: 0
       - name: "Deploy module"
@@ -57,7 +57,7 @@ jobs:
         parameterFilePaths: ["kv.parameters.json"]
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
         with:
           fetch-depth: 0
       - name: "Deploy module"
@@ -80,7 +80,7 @@ jobs:
       - job_deploy_kv
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
         with:
           fetch-depth: 0
       - name: "Setup agent"
@@ -97,12 +97,12 @@ jobs:
           # Set agent up
           Set-EnvironmentOnAgent -PSModules $Modules
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
       - name: "Set key vault secrets keys and certificates"
-        uses: azure/powershell@v1
+        uses: azure/powershell@1300bbd2b3e1c21c029fe34887d16d2809a1397f # v1.4.0
         with:
           inlineScript: |
             # Get key vault name
@@ -164,7 +164,7 @@ jobs:
         parameterFilePaths: ["sql.parameters.json"]
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
         with:
           fetch-depth: 0
       - name: "Deploy module"
@@ -191,7 +191,7 @@ jobs:
         parameterFilePaths: ["synapse-wks.parameters.json"]
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
         with:
           fetch-depth: 0
       - name: "Deploy module"
@@ -215,16 +215,16 @@ jobs:
       - job_deploy_sql
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
         with:
           fetch-depth: 0
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
       - name: "Get SQL DB details"
-        uses: azure/powershell@v1
+        uses: azure/powershell@1300bbd2b3e1c21c029fe34887d16d2809a1397f # v1.4.0
         with:
           inlineScript: |
             # Get key vault name
@@ -243,13 +243,13 @@ jobs:
             echo "KEY_VAULT_NAME=${keyVaultName}" >> $Env:GITHUB_ENV
           azPSVersion: "latest"
 
-      - uses: Azure/get-keyvault-secrets@v1
+      - uses: Azure/get-keyvault-secrets@b5c723b9ac7870c022b8c35befe620b7009b336f # v1.2
         with:
           keyvault: "${{ env.KEY_VAULT_NAME }}" # name of key vault in Azure portal
           secrets: 'administratorLogin, administratorLoginPassword'  # comma separated list of secret keys to fetch from key vault
         id: myGetSecretAction # ID for secrets that you will reference
       - name: Azure SQL Deploy
-        uses: Azure/sql-action@v1.2
+        uses: Azure/sql-action@2b6fe538832b69b18e9e67a60bac2d57834d6162 # v1.2
         with:
           server-name: '${{ env.SQL_SERVER_NAME }}.database.windows.net' # To be filled in GitHub Secrets
           connection-string: 'Server=tcp:${{ env.SQL_SERVER_NAME }}.database.windows.net,1433;Initial Catalog=${{ env.SQL_DB_NAME }};Persist Security Info=False;User ID=${{ steps.myGetSecretAction.outputs.administratorLogin }};Password=${{ steps.myGetSecretAction.outputs.administratorLoginPassword }};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
@@ -265,16 +265,16 @@ jobs:
       - job_deploy_synapse
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
         with:
           fetch-depth: 0
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
       - name: "Get SQL DB details"
-        uses: azure/powershell@v1
+        uses: azure/powershell@1300bbd2b3e1c21c029fe34887d16d2809a1397f # v1.4.0
         with:
           inlineScript: |
             # Get synapse name
@@ -307,7 +307,7 @@ jobs:
             # New-AzRoleAssignment -RoleDefinitionName 'Key Vault Administrator' -ObjectId '7ef20d83-bcdd-4dd6-8a5b-7f45ccb8ffca' -Scope '/subscriptions/0b3f04a9-6375-4341-a513-dd53731a99a4/resourcegroups/weu-tst-gdp-validation-rg/providers/Microsoft.KeyVault/vaults/kv-gdp-contoso-weu-tst01'
           azPSVersion: "latest"
 
-      - uses: Azure/get-keyvault-secrets@v1
+      - uses: Azure/get-keyvault-secrets@b5c723b9ac7870c022b8c35befe620b7009b336f # v1.2
         with:
           keyvault: "${{ env.KEY_VAULT_NAME }}" # name of key vault in Azure portal
           secrets: 'administratorLogin, administratorLoginPassword'  # comma separated list of secret keys to fetch from key vault
@@ -315,7 +315,7 @@ jobs:
 
 
       - name: Synapse workspace deployment
-        uses: Azure/Synapse-workspace-deployment@release-1.0
+        uses: Azure/Synapse-workspace-deployment@e3149178ddce6c681fad406db64c06257f291e16 # v1.2
         with:
           TargetWorkspaceName: '${{ env.SYNAPSE_NAME }}'
           TemplateFile: DeliveryIP/GDP/CodeBase/synapse/TemplateForWorkspace.json
@@ -329,7 +329,7 @@ jobs:
           tenantId: ${{ secrets.ARM_TENANT_ID }}
 
       - name: "Set Workspace Access to person"
-        uses: azure/powershell@v1
+        uses: azure/powershell@1300bbd2b3e1c21c029fe34887d16d2809a1397f # v1.4.0
         with:
           inlineScript: |
             # Get synapse and key vault name
